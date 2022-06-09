@@ -1,0 +1,354 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "DAPR Metadata API",
+    "description": "This API returns metadata related to DAPR components \n",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "1.0.0"
+  },
+  "externalDocs": {
+    "description": "Find out more about Swagger",
+    "url": "http://swagger.io"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:<daprPort>/v1.0/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "components",
+      "description": "Metadata API for DAPR components",
+      "externalDocs": {
+        "description": "Docs on components",
+        "url": "https://docs.dapr.io/concepts/components-concept/"
+      }
+    }
+  ],
+  "paths": {
+    "/metadata": {
+      "get": {
+        "tags": [
+          "components"
+        ],
+        "summary": "Get metadata for all running components in DAPR",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/metadata"
+                  }
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/metadata"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Dapr could not return the metadata information"
+          }
+        }
+      }
+    },
+    "/metadata/{componenttype}": {
+      "get": {
+        "tags": [
+          "components"
+        ],
+        "summary": "Get list of all supported components of specified type",
+        "description": "List ALL supported DAPR components by type\n",
+        "parameters": [
+          {
+            "name": "componenttype",
+            "in": "path",
+            "description": "Type of component to list",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "inputbinding",
+                "outputbinding"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/inline_response_200"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Dapr could not return the metadata information"
+          }
+        }
+      }
+    },
+    "/metadata/{componenttype}/{component}": {
+      "get": {
+        "tags": [
+          "components"
+        ],
+        "summary": "Get connection details and supported operations for selected component of type 'componenttype'",
+        "description": "Get connection details and supported operations for selected component of type 'componenttype' \n",
+        "parameters": [
+          {
+            "name": "componenttype",
+            "in": "path",
+            "description": "Type of component to list",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "default": "inputbinding",
+              "enum": [
+                "inputbinding",
+                "outputbinding"
+              ]
+            },
+            "example": "inputbinding"
+          },
+          {
+            "name": "component",
+            "in": "path",
+            "description": "name of the specific component",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "kafka"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "example": [
+                    {
+                      "name": "mysql",
+                      "binding-type": "output",
+                      "cert-status": "alpha",
+                      "version": "v1",
+                      "connectiondetails": [
+                        {
+                          "name": "url",
+                          "required": true,
+                          "description": "Represent DB connection in Source Name (DNS) format",
+                          "example": "user:password@tcp(localhost:3306)/dbname"
+                        },
+                        {
+                          "name": "pemPath",
+                          "required": true,
+                          "description": "Path to the PEM file. Used with SSL connection",
+                          "example": "path/to/pem/file"
+                        }
+                      ],
+                      "operations": [
+                        {
+                          "name": "exec",
+                          "description": "The exec operation can be used for DDL operations (like table creation), as well as INSERT, UPDATE, DELETE operations which return only metadata (e.g. number of affected rows).",
+                          "inputs": {
+                            "data": [],
+                            "metadata": [
+                              {
+                                "name": "sql",
+                                "required": true,
+                                "description": "The SQL query, For eg. INSERT INTO foo (id, c1, ts) VALUES (1, 'demo', '2020-09-24T11:45:05Z07:00')"
+                              }
+                            ]
+                          },
+                          "outputs": {
+                            "operation": "exec",
+                            "duration": "Time taken, for eg. 294µs",
+                            "start-time": "Eg. 2020-09-24T11:13:46.405097Z",
+                            "end-time": "Eg. 2020-09-24T11:13:46.414519Z",
+                            "rows-affected": "Number of rows affected by the query",
+                            "sql": "The SQL query executed"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "items": {
+                    "$ref": "#/components/schemas/inline_response_200_1"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Dapr could not return the metadata information"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "metadata": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "metadata"
+        }
+      },
+      "inline_response_200": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "binding-type": {
+            "type": "string"
+          },
+          "cert-status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "metadatacomponenttypecomponent_connectiondetails": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "mandatory": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "example": {
+            "type": "string"
+          }
+        },
+        "example": null
+      },
+      "metadatacomponenttypecomponent_inputs_metadata": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "example": null
+      },
+      "metadatacomponenttypecomponent_inputs": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "metadata": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/metadatacomponenttypecomponent_inputs_metadata"
+            }
+          }
+        },
+        "example": null
+      },
+      "metadatacomponenttypecomponent_operations": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "inputs": {
+            "$ref": "#/components/schemas/metadatacomponenttypecomponent_inputs"
+          },
+          "outputs": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "example": null
+      },
+      "inline_response_200_1": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "binding-type": {
+            "type": "string"
+          },
+          "cert-status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "connectiondetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/metadatacomponenttypecomponent_connectiondetails"
+            }
+          },
+          "operations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/metadatacomponenttypecomponent_operations"
+            }
+          }
+        }
+      }
+    }
+  }
+}
